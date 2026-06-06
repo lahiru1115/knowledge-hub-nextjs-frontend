@@ -1,0 +1,1 @@
+# Knowledge Hub - Next.js Frontend
