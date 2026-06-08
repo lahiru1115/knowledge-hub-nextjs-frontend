@@ -44,9 +44,7 @@ export function CreateCollectionDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button>New Collection</Button>
-      </DialogTrigger>
+      <DialogTrigger render={<Button>New Collection</Button>} />
 
       <DialogContent>
         <DialogHeader>
