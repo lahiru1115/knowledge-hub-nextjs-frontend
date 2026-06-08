@@ -1,0 +1,10 @@
+import { z } from "zod";
+
+export const createResourceSchema = z.object({
+  title: z.string().min(2).max(255),
+  url: z.url(),
+  notes: z.string().optional(),
+  resource_type: z.enum(["article", "video", "pdf", "website"]),
+});
+
+export type CreateResourceForm = z.infer<typeof createResourceSchema>;
