@@ -1,13 +1,11 @@
+import { Tag } from "./tag";
+
 export enum ResourceType {
   ARTICLE = "article",
   VIDEO = "video",
   PDF = "pdf",
   WEBSITE = "website",
-}
-
-export interface Tag {
-  id: string;
-  name: string;
+  OTHER = "other",
 }
 
 export interface Resource {
@@ -15,13 +13,13 @@ export interface Resource {
   collection_id: string;
 
   title: string;
-  url: string;
+  url?: string;
 
   notes?: string;
 
   resource_type: ResourceType;
 
-  tags: Tag[];
+  tags?: Tag[];
 }
 
 export interface PaginatedResources {
@@ -34,7 +32,8 @@ export interface PaginatedResources {
 export interface CreateResourcePayload {
   collection_id: string;
   title: string;
-  url: string;
+  url?: string;
   notes?: string;
   resource_type: ResourceType;
+  tag_ids?: string[];
 }

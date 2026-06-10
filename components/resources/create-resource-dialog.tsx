@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 
 import { useCreateResource } from "@/hooks/use-create-resource";
+import { useTags } from "@/hooks/use-tags";
 import { ResourceType } from "@/types/resource";
 
 import {
@@ -38,6 +39,9 @@ interface Props {
 
 export function CreateResourceDialog({ collectionId }: Props) {
   const [open, setOpen] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  const { data: tags } = useTags();
 
   const { register, handleSubmit, setValue, watch, reset } =
     useForm<CreateResourceForm>({
@@ -48,6 +52,7 @@ export function CreateResourceDialog({ collectionId }: Props) {
         url: "",
         notes: "",
         resource_type: ResourceType.ARTICLE,
+        tag_ids: [],
       },
     });
 
@@ -60,13 +65,14 @@ export function CreateResourceDialog({ collectionId }: Props) {
       url: values.url,
       notes: values.notes,
       resource_type: values.resource_type as ResourceType,
+      tag_ids: selectedTags,
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button>New Resource</Button>} />
-      
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Resource</DialogTitle>
@@ -95,6 +101,37 @@ export function CreateResourceDialog({ collectionId }: Props) {
           </Select>
 
           <Textarea placeholder="Notes" {...register("notes")} />
+
+          <div>
+            <label className="mb-2 block text-sm">Tags</label>
+
+            <div className="flex flex-wrap gap-2">
+              {tags?.map((tag) => {
+                const selected = selectedTags.includes(tag.id);
+
+                return (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    onClick={() => {
+                      if (selected) {
+                        setSelectedTags(
+                          selectedTags.filter((id) => id !== tag.id),
+                        );
+                      } else {
+                        setSelectedTags([...selectedTags, tag.id]);
+                      }
+                    }}
+                    className={`rounded-full border px-3 py-1 ${
+                      selected ? "bg-primary text-primary-foreground" : ""
+                    }`}
+                  >
+                    {tag.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <Button
             type="submit"
