@@ -1,17 +1,20 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+
+import { DeleteAlertDialog } from "@/components/shared/delete-alert-dialog";
+import { useDeleteResource } from "@/hooks/use-delete-resource";
 
 import { Resource } from "@/types/resource";
 
 interface Props {
   resource: Resource;
   onEdit: (resource: Resource) => void;
-  onDelete: (id: string) => void;
 }
 
-export function ResourceCard({ resource, onEdit, onDelete }: Props) {
+export function ResourceCard({ resource, onEdit }: Props) {
+  const deleteMutation = useDeleteResource();
+
   return (
     <div className="rounded-xl border p-4">
       <div className="flex justify-between">
@@ -27,13 +30,10 @@ export function ResourceCard({ resource, onEdit, onDelete }: Props) {
             Edit
           </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onDelete(resource.id)}
-          >
-            <Trash2 size={16} />
-          </Button>
+          <DeleteAlertDialog
+            onConfirm={() => deleteMutation.mutateAsync(resource.id)}
+            isPending={deleteMutation.isPending}
+          />
         </div>
       </div>
 

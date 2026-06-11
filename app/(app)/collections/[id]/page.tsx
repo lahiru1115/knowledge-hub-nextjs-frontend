@@ -63,7 +63,6 @@ export default function CollectionPage() {
             key={resource.id}
             resource={resource}
             onEdit={(r) => setEditingResource(r)}
-            onDelete={() => {}}
           />
         ))}
       </div>
