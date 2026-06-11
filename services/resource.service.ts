@@ -1,6 +1,10 @@
 import { api } from "@/lib/axios";
 
-import { PaginatedResources, CreateResourcePayload } from "@/types/resource";
+import {
+  PaginatedResources,
+  CreateResourcePayload,
+  UpdateResourcePayload,
+} from "@/types/resource";
 
 export const resourceService = {
   getAll: async (collectionId?: string): Promise<PaginatedResources> => {
@@ -15,6 +19,12 @@ export const resourceService = {
 
   create: async (data: CreateResourcePayload) => {
     const response = await api.post("/resources", data);
+
+    return response.data;
+  },
+
+  update: async (id: string, data: UpdateResourcePayload) => {
+    const response = await api.put(`/resources/${id}`, data);
 
     return response.data;
   },

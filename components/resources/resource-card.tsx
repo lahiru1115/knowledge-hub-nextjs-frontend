@@ -7,10 +7,11 @@ import { Resource } from "@/types/resource";
 
 interface Props {
   resource: Resource;
+  onEdit: (resource: Resource) => void;
   onDelete: (id: string) => void;
 }
 
-export function ResourceCard({ resource, onDelete }: Props) {
+export function ResourceCard({ resource, onEdit, onDelete }: Props) {
   return (
     <div className="rounded-xl border p-4">
       <div className="flex justify-between">
@@ -21,13 +22,19 @@ export function ResourceCard({ resource, onDelete }: Props) {
           </p>
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onDelete(resource.id)}
-        >
-          <Trash2 size={16} />
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="icon" onClick={() => onEdit(resource)}>
+            Edit
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onDelete(resource.id)}
+          >
+            <Trash2 size={16} />
+          </Button>
+        </div>
       </div>
 
       <a

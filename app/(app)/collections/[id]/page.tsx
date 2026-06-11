@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 
 import { PageHeader } from "@/components/shared/page-header";
-import { CreateResourceDialog } from "@/components/resources/create-resource-dialog";
+import { ResourceFormDialog } from "@/components/resources/resource-form-dialog";
 import { ResourceCard } from "@/components/resources/resource-card";
 
 import { useResources } from "@/hooks/use-resources";
@@ -22,6 +22,7 @@ export default function CollectionPage() {
   const id = params.id as string;
 
   const [search, setSearch] = useState("");
+  const [editingResource, setEditingResource] = useState<Resource | null>(null);
 
   const { data: collection } = useQuery({
     queryKey: ["collection", id],
@@ -41,7 +42,7 @@ export default function CollectionPage() {
       <PageHeader
         title={collection?.name ?? "Collection"}
         description={collection?.description}
-        action={<CreateResourceDialog collectionId={id} />}
+        action={<ResourceFormDialog mode="create" collectionId={id} />}
       />
 
       <div className="space-y-4">
@@ -61,10 +62,20 @@ export default function CollectionPage() {
           <ResourceCard
             key={resource.id}
             resource={resource}
+            onEdit={(r) => setEditingResource(r)}
             onDelete={() => {}}
           />
         ))}
       </div>
+
+      {editingResource && (
+        <ResourceFormDialog
+          mode="edit"
+          resource={editingResource}
+          open={true}
+          onOpenChange={(open) => { if (!open) setEditingResource(null); }}
+        />
+      )}
     </>
   );
 }

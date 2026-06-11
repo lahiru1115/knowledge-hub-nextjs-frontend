@@ -37,3 +37,11 @@ export interface CreateResourcePayload {
   resource_type: ResourceType;
   tag_ids?: string[];
 }
+
+export interface UpdateResourcePayload {
+  title: string;
+  url?: string;
+  notes?: string;
+  resource_type: ResourceType;
+  tag_ids?: string[];
+}

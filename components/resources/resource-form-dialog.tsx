@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -25,28 +25,46 @@ import {
 } from "@/components/ui/select";
 
 import { useCreateResource } from "@/hooks/use-create-resource";
+import { useUpdateResource } from "@/hooks/use-update-resource";
 import { useTags } from "@/hooks/use-tags";
-import { ResourceType } from "@/types/resource";
+import { Resource, ResourceType } from "@/types/resource";
 
 import {
   createResourceSchema,
   CreateResourceForm,
 } from "@/lib/validators/resource";
 
-interface Props {
+type CreateProps = {
+  mode: "create";
   collectionId: string;
-}
+  resource?: never;
+  open?: never;
+  onOpenChange?: never;
+};
 
-export function CreateResourceDialog({ collectionId }: Props) {
-  const [open, setOpen] = useState(false);
+type EditProps = {
+  mode: "edit";
+  resource: Resource;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  collectionId?: never;
+};
+
+type Props = CreateProps | EditProps;
+
+export function ResourceFormDialog(props: Props) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  const isEdit = props.mode === "edit";
+  const open = isEdit ? props.open : internalOpen;
+  const onOpenChange = isEdit ? props.onOpenChange : setInternalOpen;
 
   const { data: tags } = useTags();
 
   const { register, handleSubmit, setValue, watch, reset } =
     useForm<CreateResourceForm>({
       resolver: zodResolver(createResourceSchema),
-
       defaultValues: {
         title: "",
         url: "",
@@ -56,26 +74,68 @@ export function CreateResourceDialog({ collectionId }: Props) {
       },
     });
 
-  const mutation = useCreateResource();
+  useEffect(() => {
+    if (open) {
+      if (isEdit) {
+        reset({
+          title: props.resource.title,
+          url: props.resource.url ?? "",
+          notes: props.resource.notes ?? "",
+          resource_type: props.resource.resource_type,
+        });
+        setSelectedTags(props.resource.tags?.map((t) => t.id) ?? []);
+      } else {
+        reset({
+          title: "",
+          url: "",
+          notes: "",
+          resource_type: ResourceType.ARTICLE,
+        });
+        setSelectedTags([]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const createMutation = useCreateResource();
+  const updateMutation = useUpdateResource();
+
+  const isPending = createMutation.isPending || updateMutation.isPending;
 
   const onSubmit = async (values: CreateResourceForm) => {
-    await mutation.mutateAsync({
-      collection_id: collectionId,
-      title: values.title,
-      url: values.url,
-      notes: values.notes,
-      resource_type: values.resource_type as ResourceType,
-      tag_ids: selectedTags,
-    });
+    if (!isEdit) {
+      await createMutation.mutateAsync({
+        collection_id: props.collectionId,
+        title: values.title,
+        url: values.url,
+        notes: values.notes,
+        resource_type: values.resource_type as ResourceType,
+        tag_ids: selectedTags,
+      });
+    } else {
+      await updateMutation.mutateAsync({
+        id: props.resource.id,
+        data: {
+          title: values.title,
+          url: values.url,
+          notes: values.notes,
+          resource_type: values.resource_type as ResourceType,
+          tag_ids: selectedTags,
+        },
+      });
+    }
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button>New Resource</Button>} />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {!isEdit && <DialogTrigger render={<Button>New Resource</Button>} />}
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Resource</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Edit Resource" : "Create Resource"}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -133,12 +193,14 @@ export function CreateResourceDialog({ collectionId }: Props) {
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={mutation.isPending}
-          >
-            {mutation.isPending ? "Creating..." : "Create Resource"}
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending
+              ? isEdit
+                ? "Saving..."
+                : "Creating..."
+              : isEdit
+                ? "Save Changes"
+                : "Create Resource"}
           </Button>
         </form>
       </DialogContent>
