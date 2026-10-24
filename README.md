@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Knowledge Hub — Next.js Frontend
 
-## Getting Started
+Web app for **Knowledge Hub**, a personal bookmark and learning-resource manager. Users organise resources (articles, videos, PDFs, websites) into collections and label them with tags.
 
-First, run the development server:
+It is designed to work with any of the three backends that implement the same API:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Backend | Default URL |
+|---|---|
+| [ASP.NET Core](https://github.com/lahiru1115/knowledge-hub-dotnet-backend) | `http://localhost:5113/api` |
+| [FastAPI](https://github.com/lahiru1115/knowledge-hub-fastapi-backend) | `http://localhost:8000/api` |
+| [Spring Boot](https://github.com/lahiru1115/knowledge-hub-spring-boot-backend) | `http://localhost:8080/api` |
+
+> **Status:** only the FastAPI backend works with the frontend today. The .NET and Spring backends are being aligned to the same contract (cookie auth, snake_case JSON, CORS).
+
+## Tech stack
+
+- Next.js 16 (App Router), React 19, TypeScript
+- TanStack Query for server state, Zustand for client state, axios
+- React Hook Form + Zod
+- Tailwind CSS 4 and shadcn/ui (Base UI)
+
+## Features
+
+- Register and log in; protected routes through `proxy.ts`
+- Collections: list and create
+- Collection detail: list, create, edit and delete resources, with tag selection
+- Tags: list and create
+
+## Getting started
+
+**Prerequisites:** Node.js 20+ and one backend running.
+
+1. Install the dependencies:
+   ```bash
+   npm install
+   ```
+2. Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_API_URL` to the backend you want (see the table above).
+3. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+4. Open http://localhost:3000.
+
+## Project structure
+
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+app/          Routes: auth pages and the (app) group (dashboard, collections, resources, tags)
+components/   Feature components and shadcn/ui primitives
+hooks/        TanStack Query hooks
+services/     API calls (axios)
+lib/          axios instance, query client, Zod validators
+store/        Zustand stores
+types/        Shared TypeScript types
+```
